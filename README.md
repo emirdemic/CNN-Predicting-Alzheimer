@@ -1,4 +1,4 @@
-# CNN-Alzheimer-Predictions
+# CNN Alzheimer Predictions
 
 
 # Requirements
