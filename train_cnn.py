@@ -39,6 +39,7 @@ def train_nn(model, optimizer, criterion, learning_rate, dataloaders, epochs, de
         epochs
         device
         scheduler 
+        
     '''
     
     for _ in range(epochs):
