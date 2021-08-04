@@ -1,12 +1,25 @@
+from numpy import e
 import torchvision 
 import torch
 
 
-def get_resnet50(output, pretrained = True, freeze = True):
-    model = torchvision.models.resnet50(pretrained = pretrained)
+def get_resnet50(output, resnet_version, pretrained = True, freeze = True):
+    if resnet_version == 18:
+        model = torchvision.models.resnet18(pretrained = pretrained)
+    elif resnet_version == 34: 
+        model = torchvision.models.resnet34(pretrained = pretrained)
+    elif resnet_version == 50:
+        model = torchvision.models.resnet50(pretrained = pretrained)
+    elif resnet_version == 101:
+        model = torchvision.models.resnet101(pretrained = pretrained)
+    elif resnet_version == 152:
+        model = torchvision.models.resnet152(pretrained = pretrained)
+    else:
+        raise KeyError('Model not available')
+
     if freeze == True:
-        for params in model.parameters():
-            params.require_grads = False
+        for param in model.parameters():
+            param.require_grads = False
 
     in_features = model.fc.in_features
     model.fc = torch.nn.Linear(in_features, output)
