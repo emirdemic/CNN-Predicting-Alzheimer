@@ -14,6 +14,7 @@ from torchvision import datasets, models, transforms
 import numpy as np
 import matplotlib.pyplot as plt
 
+#Ovaj kod koristi dosta koda iz CNN WS-a koji mozete naci na: https://github.com/Petlja/PSIML/tree/master/workshops/CNNs
 
 
 def get_Dataset(folder_name = "new_data", bs = 10, shuffle = True):
@@ -46,6 +47,3 @@ def img_batch_show_test(img_dataset):
 
     plt.show()
 
-
-
-img_batch_show_test(get_Dataset(bs=8))
