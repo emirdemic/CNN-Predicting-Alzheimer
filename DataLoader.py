@@ -22,7 +22,7 @@ def get_Dataset(folder_name = "new_data", bs = 10, shuffle = True):
     img_path = os.path.join(os.getcwd(),folder_name)
     train_val = ['train','val']
 
-    transformations = torchvision.transforms.Compose([transforms.Grayscale(num_output_channels = 1),transforms.ToTensor()])
+    transformations = torchvision.transforms.Compose([transforms.ToTensor()])
 
 
     img_datasets = {x:datasets.ImageFolder(os.path.join(img_path,x),transformations) for x in train_val}
