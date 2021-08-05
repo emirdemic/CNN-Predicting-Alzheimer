@@ -48,11 +48,11 @@ def train_nn(model, dataloaders, optimizer, criterion, learning_rate, epochs, de
     for epoch in range(epochs):    
         current_accuracy = 0
 
-        for phase in ['train', 'evaluate']:
+        for phase in ['train', 'val']:
             
             if phase == 'train':
                 model.train()
-            elif phase == 'evaluate':
+            elif phase == 'val':
                 model.eval()
             
             batch_loss = 0
@@ -78,20 +78,20 @@ def train_nn(model, dataloaders, optimizer, criterion, learning_rate, epochs, de
                         print(loss_observer(loss = loss.item(), step = train_step, epoch = epoch))
                         train_step += 1
 
-                    elif phase == 'evaluate':
+                    elif phase == 'val':
                         output = model(features)
                         loss = criterion(output, labels)
                         # Make predictions
-                        predictions = torch.nn.functional.softmax(output)
+                        predictions = torch.nn.functional.softmax(output, dim = -1)
                         predicted_class = torch.argmax(predictions)
                         current_accuracy += torch.sum(labels == predicted_class)
                         batch_loss += loss.item() * features.size(0)
-                        #summary_writer.add_scalar('Validation Batch Loss', loss.item(0), val_step)
+                        summary_writer.add_scalar('Validation Batch Loss', loss, val_step)
                         val_step += 1
             
             if phase == 'train':
                 train_epoch_loss.append(batch_loss)
-            elif phase == 'evaluate':
+            elif phase == 'val':
                 val_epoch_loss.append(batch_loss)
             
 
@@ -112,7 +112,7 @@ def train_nn(model, dataloaders, optimizer, criterion, learning_rate, epochs, de
 
 if __name__ == '__main__':
 
-    dataloaders = DataLoader.get_Dataset(folder_name = 'new_data', bs = 64)
+    dataloaders = DataLoader.get_Dataset(folder_name = 'new_data', bs = 16)
     model = pretrained_architectures.get_resnet(
         output = 4, 
         resnet_version = 34, 
@@ -139,4 +139,4 @@ if __name__ == '__main__':
     )
 
     MODEL_NAME = 'RESNET34_TRIAL_1'
-    torch.save(obj = best_model.state_dict(), f = f'../models_state/{MODEL_NAME}')
+    torch.save(obj = best_model.state_dict(), f = f'models_state/{MODEL_NAME}')
