@@ -1,9 +1,8 @@
-from numpy import e
 import torchvision 
 import torch
 
 
-def get_resnet50(output, resnet_version, pretrained = True, freeze = True):
+def get_resnet(output, resnet_version, pretrained = True, freeze = True):
     if resnet_version == 18:
         model = torchvision.models.resnet18(pretrained = pretrained)
     elif resnet_version == 34: 
@@ -33,6 +32,17 @@ def get_vgg19(output, pretrained = True, freeze = True):
         for param in model.parameters():
             param.require_grads = False 
     
-    # TODO set last layer of vgg19 to output 
+    model.classifier[-1] = torch.nn.Linear(model.classifier[-1].in_features, output)
     
     return model 
+
+
+def get_inception3(output, pretrained = True, freeze = True):
+    model = torchvision.models.inception_v3(pretrained = True)
+    if freeze == True:
+        for param in model.parameters():
+            param.require_grads = False 
+    
+    model.fc = torch.nn.Linear(model.fc.in_features, output)
+
+    return model
