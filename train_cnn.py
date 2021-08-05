@@ -36,13 +36,17 @@ def train_nn(model, dataloaders, optimizer, criterion, learning_rate, epochs, de
     '''
     Method trains the model.
     '''
-    best_model = copy.deepcopy(model.state_dict())
+    best_model = None 
     summary_writer = SummaryWriter()
-    step = 0 
+    train_step = 0
+    val_step = 0 
     train_epoch_loss = []
     val_epoch_loss = []
 
-    for epoch in range(epochs):
+    best_accuracy = 0
+
+    for epoch in range(epochs):    
+        current_accuracy = 0
 
         for phase in ['train', 'evaluate']:
             
@@ -70,8 +74,9 @@ def train_nn(model, dataloaders, optimizer, criterion, learning_rate, epochs, de
                         if scheduler == True:
                             learning_rate.step()
                         
-                        summary_writer.add_scalar('Train Batch Loss', loss.item(0), step)
-                        print(loss_observer(loss = loss.item(), step = step, epoch = epoch))
+                        summary_writer.add_scalar('Train Batch Loss', loss, train_step)
+                        print(loss_observer(loss = loss.item(), step = train_step, epoch = epoch))
+                        train_step += 1
 
                     elif phase == 'evaluate':
                         output = model(features)
@@ -79,16 +84,23 @@ def train_nn(model, dataloaders, optimizer, criterion, learning_rate, epochs, de
                         # Make predictions
                         predictions = torch.nn.functional.softmax(output)
                         predicted_class = torch.argmax(predictions)
+                        current_accuracy += torch.sum(labels == predicted_class)
                         batch_loss += loss.item() * features.size(0)
-                        summary_writer.add_scalar('Validation Batch Loss', loss.item(0), step)
-                        
-                step += 1
+                        #summary_writer.add_scalar('Validation Batch Loss', loss.item(0), val_step)
+                        val_step += 1
             
             if phase == 'train':
                 train_epoch_loss.append(batch_loss)
             elif phase == 'evaluate':
                 val_epoch_loss.append(batch_loss)
-        
+            
+
+        current_accuracy = current_accuracy / len(dataloaders['val'].dataset)
+        if current_accuracy > best_accuracy:
+            best_accuracy = current_accuracy
+            best_model = copy.deepcopy(model.state_dict())
+
+
         warning = loss_warning(loss_history = train_epoch_loss, threshold = 7)
         if warning:
             print(warning)
@@ -100,20 +112,20 @@ def train_nn(model, dataloaders, optimizer, criterion, learning_rate, epochs, de
 
 if __name__ == '__main__':
 
-    dataloaders = DataLoader.get_Dataset(folder_name = '../new_data', bs = 64)
+    dataloaders = DataLoader.get_Dataset(folder_name = 'new_data', bs = 64)
     model = pretrained_architectures.get_resnet(
         output = 4, 
         resnet_version = 34, 
         pretrained = True, 
         freeze = True
-        ).to(network_hyperparameters['DEVICE'])
+        ).to(network_hyperparameters.resnet['DEVICE'])
 
-    OPTIMIZER = network_hyperparameters['OPTIMIZER'](filter(lambda p: p.requires_grad, model.parameters()))
-    LEARNING_RATE = network_hyperparameters['LEARNING_RATE']
-    CRITERION = network_hyperparameters['CRITERION']()
-    EPOCHS = network_hyperparameters['EPOCHS']
-    DEVICE = network_hyperparameters['DEVICE']
-    SCHEDULER = network_hyperparameters['SCHEDULER']
+    OPTIMIZER = network_hyperparameters.resnet['OPTIMIZER'](filter(lambda p: p.requires_grad, model.parameters()))
+    LEARNING_RATE = network_hyperparameters.resnet['LEARNING_RATE']
+    CRITERION = network_hyperparameters.resnet['CRITERION']()
+    EPOCHS = network_hyperparameters.resnet['EPOCHS']
+    DEVICE = network_hyperparameters.resnet['DEVICE']
+    SCHEDULER = network_hyperparameters.resnet['SCHEDULER']
 
     best_model, model = train_nn(
         model = model, 
