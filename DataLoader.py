@@ -14,7 +14,7 @@ from torchvision import datasets, models, transforms
 import numpy as np
 import matplotlib.pyplot as plt
 
-#Ovaj kod koristi dosta koda iz CNN WS-a koji mozete naci na: https://github.com/Petlja/PSIML/tree/master/workshops/CNNs
+#This code uses a lot of code examples provided in CNN WS -> https://github.com/Petlja/PSIML/tree/master/workshops/CNNs
 
 
 def get_Dataset(folder_name = "new_data", bs = 10, shuffle = True):
@@ -42,8 +42,14 @@ def img_batch_show_test(img_dataset):
     print(f'Shape of batch of images: {img_batch.shape}')
 
     grid =torchvision.utils.make_grid(img_batch)
-
-    plt.imshow(grid.numpy().transpose((1,2,0)))
+    im = grid.numpy().transpose((1,2,0))
+    plt.imshow(im)
+    plt.imsave("test.jpeg",im)
 
     plt.show()
 
+
+
+if __name__=='__main__':
+    img_batch_show_test(get_Dataset())
+    
