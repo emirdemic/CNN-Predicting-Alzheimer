@@ -3,9 +3,9 @@ from collections import OrderedDict
 from utils.transformations import AddGaussianNoise
 
 
-class SiameseCNN(torch.nn.Module):
+class SCNN(torch.nn.Module):
     def __init__(self, input_dims, output_dims, device):
-        super(SiameseCNN, self).__init__()
+        super(SCNN, self).__init__()
 
         self.input_dims = input_dims 
         self.output_dims = output_dims
@@ -122,6 +122,31 @@ class SiameseCNN(torch.nn.Module):
         concatenated = self.fully_connected_layer(concatenated.size(1), 4096, concatenated)
         concatenated = self.fully_connected_layer(4096, 4096, concatenated)
         return self.fully_connected_layer(4096, self.output_dims, concatenated)
+
+
+
+class DemNet(torch.nn.Module):
+    def __init__(self, input_dims, output_dims):
+        super(DemNet, self).__init__()
+        self.input_dims = input_dims 
+        self.output_dims = output_dims 
+
+        # TODO INSERT LAYERS
+
+    def fully_connected_layer(self, input_size, output_size, x):
+        relu = torch.nn.ReLU()
+        combination = torch.nn.Linear(in_features = input_size, out_features = output_size)
+        return relu(combination(x))
+
+
+    def forward(self, x):
+        x = self.block1(x)
+        x = self.block2(x)
+        x = self.block3(x)
+        x = self.block4(x)
+        x = self.block5(x)
+
+        return x 
 
 
 
